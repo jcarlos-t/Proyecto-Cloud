@@ -88,6 +88,9 @@ Gestión de cursos, proyecto implementado para el curso de cloud computing
 
 ### **Microservicio 3: Gestión de Pedidos**
 
+https://github.com/jcarlos-t/Pedidos-MS3.git
+
+
 #### **Relaciones entre colecciones**:
 
 1. **Pedidos** → **Usuarios**: Relación 1:N. Un pedido pertenece a un usuario.
