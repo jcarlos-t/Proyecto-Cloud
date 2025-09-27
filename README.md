@@ -43,6 +43,7 @@ Gestión de cursos, proyecto implementado para el curso de cloud computing
 ---
 
 ### **Microservicio 2: Gestión de Productos**
+https://github.com/EV081/ms2_products.git
 
 #### **Relaciones entre tablas**:
 
