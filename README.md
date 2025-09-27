@@ -22,3 +22,7 @@ link: https://github.com/EV081/ms4.git
 
 # MS3 - Evaluaciones & Progreso API
 https://github.com/jcarlos-t/Evaluaciones-MS3.git
+
+
+#MS2 - Cursos
+https://github.com/J-D-Rosales/ms2_cursos.git
