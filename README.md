@@ -3,6 +3,8 @@ Gestión de cursos, proyecto implementado para el curso de cloud computing
 
 ### **Microservicio 1: Gestión de Usuarios**
 
+https://github.com/PauloMiraBarr/ms1-usuarios
+
 #### **Relaciones entre tablas**:
 
 1. **Usuarios** → **Direcciones**: Relación 1:N. Un usuario puede tener varias direcciones asociadas.
