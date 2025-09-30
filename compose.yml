@@ -35,11 +35,6 @@ services:
       - "8003:3003"
     networks:
       - backend
-    depends_on:
-      ms1-usuarios:
-        condition: service_healthy
-      ms2-productos:
-        condition: service_healthy
     environment:
     #   NODE_ENV: production
     #   PORT: 3003
