@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   ms1-usuarios:
     image: pauloimb/ms1-usuarios:latest
@@ -12,11 +10,6 @@ services:
     # environment:
     #   NODE_ENV: production
     #   PORT: 3001
-    healthcheck:
-      test: ["CMD-SHELL", "nc -z localhost 8000 >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
 
   ms2-productos:
     image: vssz01/ms2_productos:latest
@@ -33,11 +26,6 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: 123
       CORS_ALLOWED_ORIGINS: "*"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
 
   ms3-pedidos:
     image: jc01010101/ms3-pedidos:v1
@@ -57,11 +45,6 @@ services:
     #   PORT: 3003
       MS1_USUARIOS_API_URL: http://ms1-usuarios:8000
       MS2_PRODUCTOS_API_URL: http://ms2-productos:8080
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3003/health >/dev/null 2>&1 || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
 
 networks:
   backend:
