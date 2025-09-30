@@ -13,7 +13,7 @@ services:
     #   NODE_ENV: production
     #   PORT: 3001
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/home"]
+      test: ["CMD-SHELL", "nc -z localhost 8000 >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -34,7 +34,7 @@ services:
       DB_PASSWORD: 123
       CORS_ALLOWED_ORIGINS: "*"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -55,10 +55,10 @@ services:
     environment:
     #   NODE_ENV: production
     #   PORT: 3003
-      USUARIOS_URL:  http://ms1-usuarios:8000
-      PRODUCTOS_URL: http://ms2-productos:8080
+      MS1_USUARIOS_API_URL: http://ms1-usuarios:8000
+      MS2_PRODUCTOS_API_URL: http://ms2-productos:8080
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3003/health"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3003/health >/dev/null 2>&1 || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
