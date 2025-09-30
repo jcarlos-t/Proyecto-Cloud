@@ -37,10 +37,12 @@ services:
       - backend
     environment:
     #   NODE_ENV: production
-    #   PORT: 3003
+      MONGO_URI: mongodb://admin:admin@18.215.44.221:27017/ms3?authSource=admin
       MS1_USUARIOS_API_URL: http://ms1-usuarios:8000
       MS2_PRODUCTOS_API_URL: http://ms2-productos:8080
-
+      PORT: 3003
+      CORS_ORIGIN: "*"
+      
 networks:
   backend:
     driver: bridge
