@@ -23,7 +23,7 @@ services:
     container_name: ms2-productos
     restart: unless-stopped
     ports:
-      - "8002:8000"
+      - "8002:8080"
     networks:
       - backend
     environment:
@@ -32,9 +32,9 @@ services:
       DB_NAME: postgres
       DB_USERNAME: postgres
       DB_PASSWORD: 123
-      CORS_ALLOWED_ORIGINS: *
+      CORS_ALLOWED_ORIGINS: "*"
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/health"]
       interval: 15s
       timeout: 5s
       retries: 5
@@ -55,8 +55,8 @@ services:
     environment:
     #   NODE_ENV: production
     #   PORT: 3003
-       USUARIOS_URL:  http://ms1-usuarios:8001
-       PRODUCTOS_URL: http://ms2-productos:8002
+      USUARIOS_URL:  http://ms1-usuarios:8000
+      PRODUCTOS_URL: http://ms2-productos:8080
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:3003/health"]
       interval: 15s
