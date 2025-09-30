@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  ms1-usuarios:
+    image: pauloimb/ms1-usuarios:latest
+    container_name: ms1-usuarios
+    restart: unless-stopped
+    ports:
+      - "8001:8000"
+    networks:
+      - backend
+    # environment:
+    #   NODE_ENV: production
+    #   PORT: 3001
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/home"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  ms2-productos:
+    image: vssz01/ms2_productos:latest
+    container_name: ms2-productos
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    networks:
+      - backend
+    # environment:
+    #   NODE_ENV: production
+    #   PORT: 3002
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  ms3-pedidos:
+    image: jc01010101/ms3-pedidos:v1
+    container_name: ms3-pedidos
+    restart: unless-stopped
+    ports:
+      - "8003:3003"
+    networks:
+      - backend
+    depends_on:
+      ms1-usuarios:
+        condition: service_healthy
+      ms2-productos:
+        condition: service_healthy
+    environment:
+    #   NODE_ENV: production
+    #   PORT: 3003
+       USUARIOS_URL:  http://ms1-usuarios:8001
+       PRODUCTOS_URL: http://ms2-productos:8002
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3003/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+networks:
+  backend:
+    driver: bridge
+
