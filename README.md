@@ -1,6 +1,17 @@
 # Proyecto-Cloud
 Gestión de cursos, proyecto implementado para el curso de cloud computing
 
+## Compose
+Con el compose los microservicios se ejecutan en los puertos:
+
+8001 -> ms1-usuarios
+
+8002 -> ms2-productos
+
+8003 -> ms3-pedidos
+
+8004 -> ms4-orquestadorDelivery
+
 ### **Microservicio 1: Gestión de Usuarios**
 
 https://github.com/PauloMiraBarr/ms1-usuarios
