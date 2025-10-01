@@ -42,7 +42,22 @@ services:
       MS2_PRODUCTOS_API_URL: http://ms2-productos:8080
       PORT: 3003
       CORS_ORIGIN: "*"
-      
+
+  ms4-orquestador:
+    image: jdrosales6/ms4-orquestador:latest
+    container_name: ms4-orquestador
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      MS1_URL: "http://ms1-usuarios:8000"
+      MS2_URL: "http://ms2-productos:8080"
+      MS3_URL: "http://ms3-pedidos:3003"
+      REQUEST_TIMEOUT: "5.0"
+      TAX_RATE: "0.18"
+    networks:
+      - backend
+
 networks:
   backend:
     driver: bridge
