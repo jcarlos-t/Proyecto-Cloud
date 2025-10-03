@@ -1,0 +1,458 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Infra Prod PC - 4 EC2, SGs, ALB, TGs (puertos 8001-8005) - AWS Academy"
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues: [t2.micro, t3.micro, t3.small, t3.medium]
+    Description: Tipo de instancia
+  AMI:
+    Type: AWS::EC2::Image::Id
+    Default: ami-08d434e92c0cfa0c0
+    Description: AMI Ubuntu 22 (Cloud9Ubuntu22-2025-03-26T13-17)
+  VolumeSizeGiB:
+    Type: Number
+    Default: 20
+    MinValue: 10
+    MaxValue: 30
+    Description: Tamaño de disco raíz (GiB)
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: vockey
+    Description: Par de claves para acceso SSH
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC donde se desplegará todo
+  SubnetA:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet en us-east-1a para MV Prod 1 y ALB
+  SubnetB:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet en us-east-1b para MV Prod 2 y ALB
+  HealthCheckPath:
+    Type: String
+    Default: /health
+    Description: Ruta de health check para los target groups
+
+Mappings: {}
+
+Resources:
+
+  # ---------------------------------------------------------
+  # Security Groups
+  # ---------------------------------------------------------
+GSProdPC:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "GS-Prod-PC: SSH(22), HTTP(80) y MS(8001-8005) abiertos a Internet"
+    VpcId: !Ref VpcId
+    SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+        Description: SSH
+      - IpProtocol: tcp
+        FromPort: 8001
+        ToPort: 8001
+        CidrIp: 0.0.0.0/0
+        Description: ms-usuarios (8001)
+      - IpProtocol: tcp
+        FromPort: 8002
+        ToPort: 8002
+        CidrIp: 0.0.0.0/0
+        Description: ms-productos (8002)
+      - IpProtocol: tcp
+        FromPort: 8003
+        ToPort: 8003
+        CidrIp: 0.0.0.0/0
+        Description: ms-pedidos (8003)
+      - IpProtocol: tcp
+        FromPort: 8004
+        ToPort: 8004
+        CidrIp: 0.0.0.0/0
+        Description: ms-data-science (8004)
+      - IpProtocol: tcp
+        FromPort: 8005
+        ToPort: 8005
+        CidrIp: 0.0.0.0/0
+        Description: ms-delivery-orquestador (8005)
+    Tags:
+      - Key: Name
+        Value: GS-Prod-PC
+
+  GSDatabase:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "SG BD: 3707, 5555, 27017 SOLO desde GS-Prod-PC"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3707
+          ToPort: 3707
+          SourceSecurityGroupId: !Ref GSProdPC
+          Description: ms1 usuarios mysql db 
+        - IpProtocol: tcp
+          FromPort: 5555
+          ToPort: 5555
+          SourceSecurityGroupId: !Ref GSProdPC
+          Description: ms2 productos postgresql db
+        - IpProtocol: tcp
+          FromPort: 27017
+          ToPort: 27017
+          SourceSecurityGroupId: !Ref GSProdPC
+          Description: ms3 pedidos mongo db
+      Tags:
+        - Key: Name
+          Value: GS-Database
+
+  # ---------------------------------------------------------
+  # Application Load Balancer
+  # ---------------------------------------------------------
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: lb-prod-pc
+      Scheme: internet-facing
+      Type: application
+      Subnets:
+        - !Ref SubnetA
+        - !Ref SubnetB
+      SecurityGroups:
+        - !Ref GSProdPC
+      IpAddressType: ipv4
+      Tags:
+        - Key: Name
+          Value: lb-prod-pc
+
+  # Target Groups (8001-8005)
+  TG8001:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TG-Prod-pc-8001
+      VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 8001
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: /home
+      Matcher:
+        HttpCode: 200-399
+
+  TG8002:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TG-Prod-pc-8002
+      VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 8002
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: !Ref HealthCheckPath
+      Matcher:
+        HttpCode: 200-399
+
+  TG8003:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TG-Prod-pc-8003
+      VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 8003
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: !Ref HealthCheckPath
+      Matcher:
+        HttpCode: 200-399
+
+  TG8004:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TG-Prod-pc-8004
+      VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 8004
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: !Ref HealthCheckPath
+      Matcher:
+        HttpCode: 200-399
+
+  TG8005:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: TG-Prod-pc-8005
+      VpcId: !Ref VpcId
+      Protocol: HTTP
+      Port: 8005
+      TargetType: instance
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTP
+      HealthCheckPath: !Ref HealthCheckPath
+      Matcher:
+        HttpCode: 200-399
+
+  # Listeners (8001-8005)
+  Listener8001:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 8001
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TG8001
+
+  Listener8002:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 8002
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TG8002
+
+  Listener8003:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 8003
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TG8003
+
+  Listener8004:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 8004
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TG8004
+
+  Listener8005:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 8005
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TG8005
+
+  # ---------------------------------------------------------
+  # EC2 Instances
+  # ---------------------------------------------------------
+  EC2Prod1:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetA   # us-east-1a
+      SecurityGroupIds: [ !Ref GSProdPC ]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: !Ref VolumeSizeGiB
+      Tags:
+        - Key: Name
+          Value: MV Prod 1
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y install git
+          cd /opt
+          git clone https://github.com/jcarlos-t/Proyecto-Cloud.git
+          git clone https://github.com/jcarlos-t/PCLoud-scripts.git
+
+  EC2Prod2:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetB   # us-east-1b
+      SecurityGroupIds: [ !Ref GSProdPC ]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: !Ref VolumeSizeGiB
+      Tags:
+        - Key: Name
+          Value: MV Prod 2
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y install git
+          cd /opt
+          git clone https://github.com/jcarlos-t/Proyecto-Cloud.git
+          git clone https://github.com/jcarlos-t/PCLoud-scripts.git
+
+  EC2Database:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetA
+      SecurityGroupIds: [ !Ref GSDatabase ]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: !Ref VolumeSizeGiB
+      Tags:
+        - Key: Name
+          Value: MV Base de datos
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y install git
+          cd /opt
+          git clone https://github.com/jcarlos-t/PCloud-BD.git
+
+  EC2Ingesta:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref AMI
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SubnetId: !Ref SubnetB
+      SecurityGroupIds: [ !Ref GSProdPC ]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs:
+            VolumeSize: !Ref VolumeSizeGiB
+      Tags:
+        - Key: Name
+          Value: MV ingesta
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -eux
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get -y install git
+          echo "Instancia de ingesta inicializada" > /opt/ingesta.README
+
+  # ---------------------------------------------------------
+  # Elastic IP para la instancia de Base de Datos
+  # ---------------------------------------------------------
+  DatabaseEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: EIP-MV-Base-de-datos
+
+  DatabaseEIPAssoc:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      AllocationId: !GetAtt DatabaseEIP.AllocationId
+      InstanceId: !Ref EC2Database
+
+  # ---------------------------------------------------------
+  # Registrar Prod1/Prod2 en cada Target Group
+  # ---------------------------------------------------------
+  TG8001Attach1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8001
+      TargetId: !Ref EC2Prod1
+      Port: 8001
+  TG8001Attach2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8001
+      TargetId: !Ref EC2Prod2
+      Port: 8001
+
+  TG8002Attach1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8002
+      TargetId: !Ref EC2Prod1
+      Port: 8002
+  TG8002Attach2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8002
+      TargetId: !Ref EC2Prod2
+      Port: 8002
+
+  TG8003Attach1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8003
+      TargetId: !Ref EC2Prod1
+      Port: 8003
+  TG8003Attach2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8003
+      TargetId: !Ref EC2Prod2
+      Port: 8003
+
+  TG8004Attach1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8004
+      TargetId: !Ref EC2Prod1
+      Port: 8004
+  TG8004Attach2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8004
+      TargetId: !Ref EC2Prod2
+      Port: 8004
+
+  TG8005Attach1:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8005
+      TargetId: !Ref EC2Prod1
+      Port: 8005
+  TG8005Attach2:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
+    Properties:
+      TargetGroupArn: !Ref TG8005
+      TargetId: !Ref EC2Prod2
+      Port: 8005
+
+Outputs:
+  ALBDNSName:
+    Description: DNS del Load Balancer
+    Value: !GetAtt ALB.DNSName
+  Prod1Id:
+    Description: ID de MV Prod 1
+    Value: !Ref EC2Prod1
+  Prod2Id:
+    Description: ID de MV Prod 2
+    Value: !Ref EC2Prod2
+  DBId:
+    Description: ID de MV Base de datos
+    Value: !Ref EC2Database
+  IngestaId:
+    Description: ID de MV Ingesta
+    Value: !Ref EC2Ingesta
+  DatabaseEip:
+    Description: IP elástica asignada a la BD
+    Value: !Ref DatabaseEIP
