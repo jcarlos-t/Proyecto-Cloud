@@ -7,9 +7,13 @@ services:
       - "8001:8000"
     networks:
       - backend
-    # environment:
-    #   NODE_ENV: production
-    #   PORT: 3001
+    environment:
+      MYSQL_HOST: localhost
+      MYSQL_PORT: 3307
+      MYSQL_USER: root
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: ms1_db
+      FASTAPI_PORT: 8000
 
   ms2-productos:
     image: vssz01/ms2_productos:latest
