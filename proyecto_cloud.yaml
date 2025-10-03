@@ -42,45 +42,45 @@ Resources:
   # ---------------------------------------------------------
   # Security Groups
   # ---------------------------------------------------------
-GSProdPC:
-  Type: AWS::EC2::SecurityGroup
-  Properties:
-    GroupDescription: "GS-Prod-PC: SSH(22), HTTP(80) y MS(8001-8005) abiertos a Internet"
-    VpcId: !Ref VpcId
-    SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: 22
-        ToPort: 22
-        CidrIp: 0.0.0.0/0
-        Description: SSH
-      - IpProtocol: tcp
-        FromPort: 8001
-        ToPort: 8001
-        CidrIp: 0.0.0.0/0
-        Description: ms-usuarios (8001)
-      - IpProtocol: tcp
-        FromPort: 8002
-        ToPort: 8002
-        CidrIp: 0.0.0.0/0
-        Description: ms-productos (8002)
-      - IpProtocol: tcp
-        FromPort: 8003
-        ToPort: 8003
-        CidrIp: 0.0.0.0/0
-        Description: ms-pedidos (8003)
-      - IpProtocol: tcp
-        FromPort: 8004
-        ToPort: 8004
-        CidrIp: 0.0.0.0/0
-        Description: ms-data-science (8004)
-      - IpProtocol: tcp
-        FromPort: 8005
-        ToPort: 8005
-        CidrIp: 0.0.0.0/0
-        Description: ms-delivery-orquestador (8005)
-    Tags:
-      - Key: Name
-        Value: GS-Prod-PC
+  GSProdPC:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "GS-Prod-PC: SSH(22), HTTP(80) y MS(8001-8005) abiertos a Internet"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+          Description: SSH
+        - IpProtocol: tcp
+          FromPort: 8001
+          ToPort: 8001
+          CidrIp: 0.0.0.0/0
+          Description: ms-usuarios (8001)
+        - IpProtocol: tcp
+          FromPort: 8002
+          ToPort: 8002
+          CidrIp: 0.0.0.0/0
+          Description: ms-productos (8002)
+        - IpProtocol: tcp
+          FromPort: 8003
+          ToPort: 8003
+          CidrIp: 0.0.0.0/0
+          Description: ms-pedidos (8003)
+        - IpProtocol: tcp
+          FromPort: 8004
+          ToPort: 8004
+          CidrIp: 0.0.0.0/0
+          Description: ms-data-science (8004)
+        - IpProtocol: tcp
+          FromPort: 8005
+          ToPort: 8005
+          CidrIp: 0.0.0.0/0
+          Description: ms-delivery-orquestador (8005)
+      Tags:
+        - Key: Name
+          Value: GS-Prod-PC
 
   GSDatabase:
     Type: AWS::EC2::SecurityGroup
@@ -92,7 +92,7 @@ GSProdPC:
           FromPort: 3707
           ToPort: 3707
           SourceSecurityGroupId: !Ref GSProdPC
-          Description: ms1 usuarios mysql db 
+          Description: ms1 usuarios mysql db
         - IpProtocol: tcp
           FromPort: 5555
           ToPort: 5555
@@ -126,7 +126,7 @@ GSProdPC:
         - Key: Name
           Value: lb-prod-pc
 
-  # Target Groups (8001-8005)
+  # Target Groups (8001-8005) con Targets
   TG8001:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -137,9 +137,14 @@ GSProdPC:
       TargetType: instance
       HealthCheckEnabled: true
       HealthCheckProtocol: HTTP
-      HealthCheckPath: /home
+      HealthCheckPath: !Ref HealthCheckPath
       Matcher:
         HttpCode: 200-399
+      Targets:
+        - Id: !Ref EC2Prod1
+          Port: 8001
+        - Id: !Ref EC2Prod2
+          Port: 8001
 
   TG8002:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -154,6 +159,11 @@ GSProdPC:
       HealthCheckPath: !Ref HealthCheckPath
       Matcher:
         HttpCode: 200-399
+      Targets:
+        - Id: !Ref EC2Prod1
+          Port: 8002
+        - Id: !Ref EC2Prod2
+          Port: 8002
 
   TG8003:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -168,6 +178,11 @@ GSProdPC:
       HealthCheckPath: !Ref HealthCheckPath
       Matcher:
         HttpCode: 200-399
+      Targets:
+        - Id: !Ref EC2Prod1
+          Port: 8003
+        - Id: !Ref EC2Prod2
+          Port: 8003
 
   TG8004:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -182,6 +197,11 @@ GSProdPC:
       HealthCheckPath: !Ref HealthCheckPath
       Matcher:
         HttpCode: 200-399
+      Targets:
+        - Id: !Ref EC2Prod1
+          Port: 8004
+        - Id: !Ref EC2Prod2
+          Port: 8004
 
   TG8005:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -196,6 +216,11 @@ GSProdPC:
       HealthCheckPath: !Ref HealthCheckPath
       Matcher:
         HttpCode: 200-399
+      Targets:
+        - Id: !Ref EC2Prod1
+          Port: 8005
+        - Id: !Ref EC2Prod2
+          Port: 8005
 
   # Listeners (8001-8005)
   Listener8001:
@@ -368,74 +393,6 @@ GSProdPC:
     Properties:
       AllocationId: !GetAtt DatabaseEIP.AllocationId
       InstanceId: !Ref EC2Database
-
-  # ---------------------------------------------------------
-  # Registrar Prod1/Prod2 en cada Target Group
-  # ---------------------------------------------------------
-  TG8001Attach1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8001
-      TargetId: !Ref EC2Prod1
-      Port: 8001
-  TG8001Attach2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8001
-      TargetId: !Ref EC2Prod2
-      Port: 8001
-
-  TG8002Attach1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8002
-      TargetId: !Ref EC2Prod1
-      Port: 8002
-  TG8002Attach2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8002
-      TargetId: !Ref EC2Prod2
-      Port: 8002
-
-  TG8003Attach1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8003
-      TargetId: !Ref EC2Prod1
-      Port: 8003
-  TG8003Attach2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8003
-      TargetId: !Ref EC2Prod2
-      Port: 8003
-
-  TG8004Attach1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8004
-      TargetId: !Ref EC2Prod1
-      Port: 8004
-  TG8004Attach2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8004
-      TargetId: !Ref EC2Prod2
-      Port: 8004
-
-  TG8005Attach1:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8005
-      TargetId: !Ref EC2Prod1
-      Port: 8005
-  TG8005Attach2:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroupAttachment
-    Properties:
-      TargetGroupArn: !Ref TG8005
-      TargetId: !Ref EC2Prod2
-      Port: 8005
 
 Outputs:
   ALBDNSName:
