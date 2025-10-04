@@ -1,148 +1,191 @@
 # Proyecto-Cloud
-Gestión de cursos, proyecto implementado para el curso de cloud computing
+
+Web de Delibery, proyecto implementado para el curso de cloud computing.
 
 ## Compose
-Con el compose los microservicios se ejecutan en los puertos:
 
-8001 -> ms1-usuarios
+Con el *compose* los microservicios se ejecutan en los puertos:
 
-8002 -> ms2-productos
-
-8003 -> ms3-pedidos
-
-8004 -> ms4-orquestadorDelivery
-
-### **Microservicio 1: Gestión de Usuarios**
-
-https://github.com/PauloMiraBarr/ms1-usuarios
-
-#### **Relaciones entre tablas**:
-
-1. **Usuarios** → **Direcciones**: Relación 1:N. Un usuario puede tener varias direcciones asociadas.
-
-#### **Tablas y relaciones**:
-
-* **Usuarios** (1:N con Direcciones)
-
-  * `id_usuario` (PK, INT, AUTO_INCREMENT)
-  * `nombre` (VARCHAR(100))
-  * `correo` (VARCHAR(100), UNIQUE)
-  * `contraseña` (VARCHAR(255))
-  * `telefono` (VARCHAR(15))
-
-* **Direcciones**
-
-  * `id_direccion` (PK, INT, AUTO_INCREMENT)
-  * `id_usuario` (FK a Usuarios, INT)
-  * `direccion` (VARCHAR(255))
-  * `ciudad` (VARCHAR(100))
-  * `codigo_postal` (VARCHAR(10))
-
-#### **Endpoints**:
-
-1. **Usuarios:**
-
-   * `GET /usuarios/{id_usuario}`: Obtener detalles de un usuario.
-   * `POST /usuarios`: Crear un nuevo usuario.
-   * `PUT /usuarios/{id_usuario}`: Actualizar detalles de un usuario.
-   * `DELETE /usuarios/{id_usuario}`: Eliminar un usuario.
-2. **Direcciones:**
-
-   * `GET /direcciones/{id_usuario}`: Obtener todas las direcciones de un usuario.
-   * `POST /direcciones`: Agregar una nueva dirección.
-   * `PUT /direcciones/{id_direccion}`: Actualizar una dirección existente.
-   * `DELETE /direcciones/{id_direccion}`: Eliminar una dirección.
+* **8001 → ms1-usuarios**
+* **8002 → ms2-productos**
+* **8003 → ms3-pedidos**
+* **8004 → ms4-orquestadorDelivery**
+* **8005 → ms5-data**
 
 ---
 
-### **Microservicio 2: Gestión de Productos**
-https://github.com/EV081/ms2_products.git
+## Microservicio 1: Gestión de Usuarios
 
-#### **Relaciones entre tablas**:
+**Tecnología:** Python y MySQL
+**Repositorio:** [https://github.com/PauloMiraBarr/ms1-usuarios](https://github.com/PauloMiraBarr/ms1-usuarios)
 
-1. **Productos** → **Categorías**: Relación 1:N. Un producto pertenece a una categoría.
+### Estructuras de tablas
 
-#### **Tablas y relaciones**:
+**Usuarios**
 
-* **Productos** (1:N con Categorías)
+* `id_usuario` INT PK AUTO_INCREMENT
+* `nombre` VARCHAR(100)
+* `correo` VARCHAR(100) UNIQUE
+* `contraseña` VARCHAR(255)
+* `telefono` VARCHAR(15)
 
-* **Productos** (1:N con Categorías)
+**Direcciones**
 
-  * `id_producto` (PK, INT, AUTO_INCREMENT)
-  * `nombre` (VARCHAR(100))
-  * `descripcion` (TEXT)
-  * `precio` (DECIMAL(10, 2))
-  * `categoria_id` (FK a Categorías, INT)
+* `id_direccion` INT PK AUTO_INCREMENT
+* `id_usuario` INT FK → Usuarios(`id_usuario`) ON DELETE CASCADE
+* `direccion` VARCHAR(255)
+* `ciudad` VARCHAR(100)
+* `codigo_postal` VARCHAR(10)
 
-* **Categorías**
+### Relaciones
 
-  * `id_categoria` (PK, INT, AUTO_INCREMENT)
-  * `nombre_categoria` (VARCHAR(100))
-  * `descripcion_categoria` (TEXT)
+* `Usuarios (1) ── (N) Direcciones` por `Direcciones.id_usuario` (FK, ON DELETE CASCADE).
 
+### Endpoints (método + ruta)
 
-#### **Endpoints**:
-
-1. **Productos:**
-
-   * `GET /productos`: Obtener todos los productos.
-   * `GET /productos/{id_producto}`: Obtener detalles de un producto.
-   * `POST /productos`: Crear un nuevo producto.
-   * `PUT /productos/{id_producto}`: Actualizar un producto.
-   * `DELETE /productos/{id_producto}`: Eliminar un producto.
-2. **Categorías:**
-
-   * `GET /categorias`: Obtener todas las categorías.
-   * `GET /categorias/{id_categoria}`: Obtener detalles de una categoría.
-   * `POST /categorias`: Crear una nueva categoría.
-   * `PUT /categorias/{id_categoria}`: Actualizar una categoría.
-   * `DELETE /categorias/{id_categoria}`: Eliminar una categoría.
+* `GET /docs`
+* `GET /health`
+* `POST /login`
+* `GET /all`
+* `GET /usuarios/{id_usuario}`
+* `POST /usuarios`
+* `PUT /usuarios/{id_usuario}`
+* `DELETE /usuarios/{id_usuario}`
+* `GET /direcciones/{id_usuario}`
+* `POST /direcciones`
+* `PUT /direcciones/{id_direccion}`
+* `DELETE /direcciones/{id_direccion}`
 
 ---
 
-### **Microservicio 3: Gestión de Pedidos**
+## Microservicio 2: Gestión de Productos
 
-https://github.com/jcarlos-t/Pedidos-MS3.git
+**Tecnología:** Java y PostgreSQL
+**Repositorio:** [https://github.com/EV081/ms2_products.git](https://github.com/EV081/ms2_products.git)
 
+### Estructuras de tablas
 
-#### **Relaciones entre colecciones**:
+**Categorías**
 
-1. **Pedidos** → **Usuarios**: Relación 1:N. Un pedido pertenece a un usuario.
-2. **Pedidos** → **Productos**: Relación N:M. Un pedido puede incluir múltiples productos y un producto puede estar en muchos pedidos. Esto se maneja con un array de productos dentro de cada pedido en la base de datos no relacional.
+* `id_categoria` INT PK AUTO_INCREMENT
+* `nombre_categoria` VARCHAR(100)
+* `descripcion_categoria` TEXT
 
-#### **Colecciones**:
- 
-* **Pedidos**
+**Productos**
 
-  * `_id` (ID de pedido, ObjectId)
-  * `id_usuario` (Referencia al usuario que hizo el pedido, INT)
-  * `fecha_pedido` (ISODate)
-  * `estado` (STRING, Ejemplo: "pendiente", "entregado", "cancelado")
-  * `total` (DECIMAL(10, 2))
-  * `productos` (Array de objetos, cada objeto con `id_producto` (INT), `cantidad` (INT), `precio_unitario` (DECIMAL(10, 2)))
+* `id_producto` INT PK AUTO_INCREMENT
+* `nombre` VARCHAR(100)
+* `descripcion` TEXT
+* `precio` DECIMAL(10,2)
+* `categoria_id` INT FK → Categorías(`id_categoria`)
 
-* **Historial de Pedidos**
+### Relaciones
 
-  * `_id` (ID de historial, ObjectId)
-  * `id_pedido` (Referencia al pedido, ObjectId)
-  * `fecha_entrega` (ISODate)
-  * `estado` (STRING)
-  * `comentarios` (TEXT)
+* `Productos (N) ── (1) Categorías` vía `Productos.categoria_id`.
 
-#### **Endpoints**:
+### Endpoints (método + ruta)
 
-1. **Pedidos:**
+**Health y Docs**
 
-   * `GET /pedidos/{id_usuario}`: Obtener todos los pedidos de un usuario.
-   * `GET /pedidos/{id_pedido}`: Obtener detalles de un pedido específico.
-   * `POST /pedidos`: Crear un nuevo pedido.
-   * `PUT /pedidos/{id_pedido}`: Actualizar el estado o detalles de un pedido.
-   * `DELETE /pedidos/{id_pedido}`: Cancelar o eliminar un pedido.
+* `GET /health`
+* `GET /swagger-ui/index.html`
 
-2. **Historial de Pedidos:**
+**Productos**
 
-   * `GET /historial/{id_usuario}`: Obtener historial de pedidos de un usuario.
-   * `POST /historial`: Registrar un cambio de estado o entrega en el historial de un pedido.
+* `GET /productos`
+* `GET /productos/{id_producto}`
+* `POST /productos`
+* `PUT /productos/{id_producto}`
+* `DELETE /productos/{id_producto}`
 
-### **Microservicio 5: Data Science**
-[https://github.com/EV081/ms5.git](https://github.com/EV081/ms5.git)
+**Categorías**
+
+* `GET /categorias`
+* `GET /categorias/{id_categoria}`
+* `POST /categorias`
+* `PUT /categorias/{id_categoria}`
+* `DELETE /categorias/{id_categoria}`
+
+**Productos por categoría**
+
+* `GET /categorias/{id_categoria}/productos`
+
+---
+
+## Microservicio 3: Gestión de Pedidos
+
+**Tecnología:** TypeScript y MongoDB
+**Repositorio:** [https://github.com/jcarlos-t/Pedidos-MS3.git](https://github.com/jcarlos-t/Pedidos-MS3.git)
+
+### Estructuras (colecciones MongoDB)
+
+**Pedido**
+
+* `_id` ObjectId
+* `id_usuario` Number
+* `fecha_pedido` Date (default: now)
+* `estado` String ∈ {`pendiente`, `entregado`, `cancelado`}
+* `total` Number
+* `productos` [ { `id_producto` Number, `cantidad` Number, `precio_unitario` Number } ]
+
+**HistorialPedido**
+
+* `_id` ObjectId
+* `id_pedido` ObjectId (ref: **Pedido**)
+* `id_usuario` Number
+* `fecha_evento` Date (default: now)
+* `estado` String ∈ {`pendiente`, `entregado`, `cancelado`}
+* `comentarios` String (opcional)
+
+### Relaciones
+
+* **HistorialPedido (N) ── (1) Pedido** vía `id_pedido`.
+* **Pedido (N) ── (1) Usuario** (lógica por `id_usuario`, referencia externa a MS1).
+* **Pedido.productos[*].id_producto** referencia externa a **Producto** (MS2).
+
+### Endpoints
+
+**Pedidos**
+
+* `GET /pedidos/user/:id_usuario`  (query opcional `?estado=`)
+* `GET /pedidos/:id_pedido`
+* `POST /pedidos`
+* `PUT /pedidos/:id_pedido/estado`
+* `PUT /pedidos/:id_pedido`
+* `DELETE /pedidos/:id_pedido`
+
+**Historial**
+
+* `GET /historial/:id_usuario`  (query opcional `?estado=`)
+* `POST /pedidos/:id_pedido/historial`
+
+**Swagger y Health**
+
+* `GET /api-docs` (UI)
+* `GET /health` (UI)
+
+---
+
+## Microservicio 4: Delivery
+
+**Repositorio:** [https://github.com/J-D-Rosales/Microservicios_orquestador.git](https://github.com/J-D-Rosales/Microservicios_orquestador.git)
+
+### Endpoints
+
+* **POST /orq/cart/price-quote** — Calcula una cotización del carrito (subtotal, impuestos y total) validando usuario, dirección y precios en MS2.
+* **POST /orq/orders** — Crea un pedido en MS3 con estado *pendiente*, registra historial (si existe) e incluye totales.
+* **PUT /orq/orders/{order_id}/cancel** — Cancela un pedido del usuario (verifica propiedad) y anota el historial si está disponible.
+* **GET /orq/_debug/addresses/{id_usuario}** — Muestra las direcciones crudas de MS1 y su versión normalizada para depuración.
+
+---
+
+## Microservicio 5: Data Science
+
+**Repositorio:** [https://github.com/EV081/ms5.git](https://github.com/EV081/ms5.git)
+
+### Endpoints (método + ruta)
+
+* `GET /health`
+* `GET /estado_historial/{id_usuario}`
+* `GET /total_gastado/{id_usuario}?fecha_inicio=YYYY-MM-DD&fecha_fin=YYYY-MM-DD`
+* `GET /ranking_categorias`
