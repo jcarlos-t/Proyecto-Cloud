@@ -161,7 +161,7 @@ Con el *compose* los microservicios se ejecutan en los puertos:
 
 **Swagger y Health**
 
-* `GET /api-docs` (UI)
+* `GET /docs` (UI)
 * `GET /health` (UI)
 
 ---
