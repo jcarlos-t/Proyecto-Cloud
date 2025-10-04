@@ -62,31 +62,18 @@ services:
       TAX_RATE: "0.18"
     networks:
       - backend
-  ms4_ds:
-    image: vssz01/ms4_ds:latest
-    container_name: ms4_ds
+      
+  ms5_ds:
+    image: vssz01/ms5_ds:latest
+    container_name: ms5_ds
     restart: unless-stopped
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8005
     ports:
-      - "8084:8005"     # Externo 8084, interno 8005 (evita choque con 8004)
+      - "8005:8005"
     networks:
       - backend
     environment:
-      AWS_DEFAULT_REGION: "us-east-1"
-    volumes:
-      - ~/.aws:/root/.aws:ro
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8005/health || exit 1"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 10s
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"   
-
+      CORS_ALLOWED_ORIGINS: "*"
+      
 networks:
   backend:
     driver: bridge
