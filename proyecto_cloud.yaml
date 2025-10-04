@@ -72,12 +72,12 @@ Resources:
           FromPort: 8004
           ToPort: 8004
           CidrIp: 0.0.0.0/0
-          Description: ms-data-science (8004)
+          Description: ms-delivery-orquestador (8004)
         - IpProtocol: tcp
           FromPort: 8005
           ToPort: 8005
           CidrIp: 0.0.0.0/0
-          Description: ms-delivery-orquestador (8005)
+          Description: ms-data-science (8005) 
       Tags:
         - Key: Name
           Value: GS-Prod-PC
