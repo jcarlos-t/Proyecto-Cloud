@@ -292,7 +292,7 @@ Resources:
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      SubnetId: !Ref SubnetA   # us-east-1a
+      SubnetId: !Ref SubnetA
       SecurityGroupIds: [ !Ref GSProdPC ]
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
@@ -318,7 +318,7 @@ Resources:
       ImageId: !Ref AMI
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      SubnetId: !Ref SubnetB   # us-east-1b
+      SubnetId: !Ref SubnetB
       SecurityGroupIds: [ !Ref GSProdPC ]
       BlockDeviceMappings:
         - DeviceName: /dev/sda1
@@ -386,24 +386,6 @@ Resources:
           apt-get update
           apt-get -y install git
           echo "Instancia de ingesta inicializada" > /opt/ingesta.README
-
-  # ---------------------------------------------------------
-  # Elastic IP para la instancia de Base de Datos
-  # ---------------------------------------------------------
-  DatabaseEIP:
-    Type: AWS::EC2::EIP
-    Properties:
-      Domain: vpc
-      Tags:
-        - Key: Name
-          Value: EIP-MV-Base-de-datos
-
-  DatabaseEIPAssoc:
-    Type: AWS::EC2::EIPAssociation
-    Properties:
-      AllocationId: !GetAtt DatabaseEIP.AllocationId
-      InstanceId: !Ref EC2Database
-
 Outputs:
   ALBDNSName:
     Description: DNS del Load Balancer
@@ -420,6 +402,6 @@ Outputs:
   IngestaId:
     Description: ID de MV Ingesta
     Value: !Ref EC2Ingesta
-  DatabaseEip:
-    Description: IP elástica asignada a la BD
-    Value: !Ref DatabaseEIP
+  DatabasePrivateIp:
+    Description: IP privada de la instancia de BD
+    Value: !GetAtt EC2Database.PrivateIp
