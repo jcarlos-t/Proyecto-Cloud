@@ -300,7 +300,7 @@ Resources:
             VolumeSize: !Ref VolumeSizeGiB
       Tags:
         - Key: Name
-          Value: MV Prod 1
+          Value: MV PC Prod 1
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -326,7 +326,7 @@ Resources:
             VolumeSize: !Ref VolumeSizeGiB
       Tags:
         - Key: Name
-          Value: MV Prod 2
+          Value: MV PC Prod 2
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -352,7 +352,7 @@ Resources:
             VolumeSize: !Ref VolumeSizeGiB
       Tags:
         - Key: Name
-          Value: MV Base de datos
+          Value: MV PC Base de datos
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -377,7 +377,7 @@ Resources:
             VolumeSize: !Ref VolumeSizeGiB
       Tags:
         - Key: Name
-          Value: MV ingesta
+          Value: MV PC ingesta
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
