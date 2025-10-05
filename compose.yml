@@ -60,6 +60,7 @@ services:
       MS3_URL: "http://ms3-pedidos:3003"
       REQUEST_TIMEOUT: "5.0"
       TAX_RATE: "0.18"
+      CORS_ALLOWED_ORIGINS: ${GLOBAL_CORS}
     networks:
       - backend
       
