@@ -196,7 +196,7 @@ En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por pu
 
 ## Microservicio 4: Delivery
 
-**Repositorio:** [https://github.com/J-D-Rosales/Microservicios_orquestador.git](https://github.com/J-D-Rosales/Microservicios_orquestador.git)
+**Repositorio:** [https://github.com/J-D-Rosales/Microservicios_orquestador](https://github.com/J-D-Rosales/Microservicios_orquestador)
 
 ### Endpoints
 
