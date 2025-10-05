@@ -2,15 +2,43 @@
 
 Web de Delibery, proyecto implementado para el curso de cloud computing.
 
-## Compose
+## compose.yml
 
-Con el *compose* los microservicios se ejecutan en los puertos:
+* Define **5 contenedores app** (ms1–ms5) con imágenes publicadas y **puertos externos**: 8001–8005.
 
-* **8001 → ms1-usuarios**
-* **8002 → ms2-productos**
-* **8003 → ms3-pedidos**
-* **8004 → ms4-orquestadorDelivery**
-* **8005 → ms5-data**
+**8001 → ms1-usuarios**
+**8002 → ms2-productos**
+**8003 → ms3-pedidos**
+**8004 → ms4-orquestadorDelivery**
+**8005 → ms5-data**
+
+* Usa **red `backend` (bridge)** compartida entre servicios para *service discovery* por nombre.
+* Variables de entorno parametrizadas via **`${DB_HOST}`** y **`${GLOBAL_CORS}`** (compatibles con `.env`).
+* Dependencias externas de BD (MySQL:3307, PostgreSQL:5555, Mongo:27017) se consumen por hostname/IP privado del **host de BD**.
+* **Ruteo interno** entre microservicios: p. ej. ms3 llama a `http://ms1-usuarios:8000` y `http://ms2-productos:8080`.
+* Reinicio **`unless-stopped`** y mapeo 1:1 de puertos internos/externos por servicio.
+
+---
+
+### proyecto-cloud.yaml
+
+Plantilla de **CloudFormation** que despliega la capa de cómputo y entrada para 5 microservicios (puertos **8001–8005**) con balanceo y seguridad básica:
+
+* **Parámetros**: AMI, tipo/volumen de EC2, `KeyName`, `VpcId`, subredes (A/B) y `HealthCheckPath` para health checks HTTP.
+* **Seguridad**:
+
+  * `GSProdPC`: habilita **SSH (22)** y tráfico HTTP directo a **8001–8005** desde Internet.
+  * `GSDatabase`: expone **3707 (MySQL)**, **5555 (PostgreSQL)** y **27017 (MongoDB)** **solo** desde `GSProdPC`; además 22 y 8080 abiertos.
+* **Entrada (ALB)**: ALB público con **listeners 8001–8005**, cada uno enruta a su **Target Group** dedicado; health checks HTTP configurables (200–399).
+* **Cómputo (EC2)**:
+
+  * **Apps**: `EC2Prod1` y `EC2Prod2` (reciben tráfico del ALB en 8001–8005).
+  * **BD**: `EC2Database` (acceso restringido desde Prod).
+  * **Ingesta**: `EC2Ingesta` (procesos auxiliares).
+* **Outputs**: **DNS del ALB**, IDs de instancias y **IP privada** de la instancia de BD (para configurar apps/compose).
+
+En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por puerto por servicio**, y controles de **acceso L3/L4** mediante SGs, dejando la **escalabilidad horizontal** lista al añadir instancias a los Target Groups.
+
 
 ---
 
