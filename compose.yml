@@ -77,6 +77,7 @@ services:
       AWS_PROFILE: default
       AWS_SHARED_CREDENTIALS_FILE: /aws-creds/credentials
       AWS_CONFIG_FILE: /aws-creds/config
+      ALLOWED_ORIGINS: ${GLOBAL_CORS}
     volumes:
       - /home/ubuntu/.aws:/aws-creds:ro 
 
