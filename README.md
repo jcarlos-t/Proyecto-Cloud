@@ -217,3 +217,10 @@ En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por pu
 * `GET /estado_historial/{id_usuario}`
 * `GET /total_gastado/{id_usuario}?fecha_inicio=YYYY-MM-DD&fecha_fin=YYYY-MM-DD`
 * `GET /ranking_categorias`
+
+
+## Base de datos
+
+**Repositorio:** [https://github.com/jcarlos-t/PCloud-BD.git](https://github.com/jcarlos-t/PCloud-BD.git)
+
+Contiene el Docker Compose para desplegar las bases de datos del proyecto y los scripts necesarios para cargar datos de prueba (fake data) con fines prácticos.
