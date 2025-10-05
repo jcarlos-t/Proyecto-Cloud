@@ -20,7 +20,7 @@ Web de Delibery, proyecto implementado para el curso de cloud computing.
 
 ---
 
-### proyecto-cloud.yaml
+## proyecto-cloud.yaml
 
 Plantilla de **CloudFormation** que despliega la capa de cómputo y entrada para 5 microservicios (puertos **8001–8005**) con balanceo y seguridad básica:
 
