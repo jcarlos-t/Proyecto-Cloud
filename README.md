@@ -6,11 +6,11 @@ Web de Delibery, proyecto implementado para el curso de cloud computing.
 
 * Define **5 contenedores app** (ms1–ms5) con imágenes publicadas y **puertos externos**: 8001–8005.
 
-**8001 → ms1-usuarios**
-**8002 → ms2-productos**
-**8003 → ms3-pedidos**
-**8004 → ms4-orquestadorDelivery**
-**8005 → ms5-data**
+  - **8001 → ms1-usuarios**
+  - **8002 → ms2-productos**
+  - **8003 → ms3-pedidos**
+  - **8004 → ms4-orquestadorDelivery**
+  - **8005 → ms5-data**
 
 * Usa **red `backend` (bridge)** compartida entre servicios para *service discovery* por nombre.
 * Variables de entorno parametrizadas via **`${DB_HOST}`** y **`${GLOBAL_CORS}`** (compatibles con `.env`).
@@ -221,6 +221,6 @@ En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por pu
 
 ## Base de datos
 
-**Repositorio:** [https://github.com/jcarlos-t/PCloud-BD.git](https://github.com/jcarlos-t/PCloud-BD.git)
+**Repositorio:** [https://github.com/jcarlos-t/PCloud-BD](https://github.com/jcarlos-t/PCloud-BD)
 
 Contiene el Docker Compose para desplegar las bases de datos del proyecto y los scripts necesarios para cargar datos de prueba (fake data) con fines prácticos.
