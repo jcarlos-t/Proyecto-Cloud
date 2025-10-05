@@ -224,3 +224,10 @@ En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por pu
 **Repositorio:** [https://github.com/jcarlos-t/PCloud-BD](https://github.com/jcarlos-t/PCloud-BD)
 
 Contiene el Docker Compose para desplegar las bases de datos del proyecto y los scripts necesarios para cargar datos de prueba (fake data) con fines prácticos.
+
+
+## Frontend
+
+**Repositorio:** [https://github.com/JosephAnderson234/cloud-frontend](https://github.com/JosephAnderson234/cloud-frontend)
+
+Contiene el frontend necesario para interactuar con el backend de la solución informática propuesta. Se desarrolla con *React*.
