@@ -231,3 +231,16 @@ Contiene el Docker Compose para desplegar las bases de datos del proyecto y los 
 **Repositorio:** [https://github.com/JosephAnderson234/cloud-frontend](https://github.com/JosephAnderson234/cloud-frontend)
 
 Contiene el frontend necesario para interactuar con el backend de la solución informática propuesta. Se desarrolla con *React*.
+
+**Formato de consumo del backend desde el frontend**
+
+Se usa el formato `/api/ms{n}/endpoint`
+
+Por ejemplo, los `/health` de cada ***ms***
+```
+  - /api/ms1/health
+  - /api/ms2/health
+  - /api/ms3/health
+  - /api/ms4/health
+  - /api/ms5/health
+```
