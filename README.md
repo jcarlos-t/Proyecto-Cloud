@@ -201,9 +201,9 @@ En conjunto, define **separación por rol (apps/BD/ingesta)**, **balanceo por pu
 ### Endpoints
 
 * **POST /orq/cart/price-quote** — Calcula una cotización del carrito (subtotal, impuestos y total) validando usuario, dirección y precios en MS2.
-* **POST /orq/orders** — Crea un pedido en MS3 con estado *pendiente*, registra historial (si existe) e incluye totales.
-* **PUT /orq/orders/{order_id}/cancel** — Cancela un pedido del usuario (verifica propiedad) y anota el historial si está disponible.
-* **GET /orq/_debug/addresses/{id_usuario}** — Muestra las direcciones crudas de MS1 y su versión normalizada para depuración.
+* **GET /orq/orders/{order_id}/details?id_usuario=...** Trae el pedido (MS3) y verifica que pertenezca a id_usuario.
+En cada línea, trae el producto actual (MS2) y marca si cambió el precio desde que se creó el pedido.
+Mapea categoría (MS2) y agrega un resumen del usuario (MS1) incluyendo cantidad de direcciones.
 
 ---
 
